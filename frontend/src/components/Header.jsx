@@ -22,8 +22,6 @@ export default function Header({
     { id: 'forecast', label: 'Forecast' },
     { id: 'energy', label: 'Energy' },
     { id: 'whatif', label: 'What-If' },
-    { id: 'business', label: 'Business' },
-    { id: 'architecture', label: 'Architecture' },
   ];
 
   const getRiskBadge = () => {
@@ -55,9 +53,6 @@ export default function Header({
                 AI-DRIVEN POLAR ENERGY INTELLIGENCE
               </span>
             </div>
-            <p className="text-[11px] text-[#6B7280] hidden md:block">
-              SIH Problem Statement 26061 | Team AntarctiX
-            </p>
           </div>
         </div>
 

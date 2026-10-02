@@ -96,8 +96,11 @@ class EnergyForecaster:
         forecasts = []
         base_hour = 12  # Noon baseline
 
-        for step in range(1, 7):
-            forecast_hour = (base_hour + step) % 24
+        # 13 steps of 0.5 hours covering exactly 6 hours (0.0h to 6.0h)
+        step_hours = [round(i * 0.5, 1) for i in range(13)]
+
+        for step in step_hours:
+            forecast_hour = int((base_hour + step) % 24)
             
             step_temp = current_temp + temp_mult + (-0.5 * step if forecast_hour > 16 else 0.3 * step)
             step_wind = max(0.5, current_wind * wind_mult + (1.2 * np.sin(step) if wind_mult > 0.2 else 0))
@@ -125,7 +128,7 @@ class EnergyForecaster:
 
             forecasts.append({
                 "step_hour": step,
-                "hour_label": f"t+{step}h ({forecast_hour:02d}:00)",
+                "hour_label": f"+{step}h",
                 "predicted_temp_c": round(step_temp, 1),
                 "predicted_wind_ms": round(step_wind, 1),
                 "predicted_solar_rad": round(step_solar_rad, 1),

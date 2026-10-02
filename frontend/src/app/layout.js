@@ -2,7 +2,7 @@ import './globals.css';
 
 export const metadata = {
   title: 'PRAKASH | AI-Driven Polar Energy Intelligence Console',
-  description: 'AI-Driven Smart Energy Management System for Polar Research Stations Bharati & Maitri (SIH26061)',
+  description: 'AI-Driven Smart Energy Management System for Polar Research Stations Bharati & Maitri',
 };
 
 export default function RootLayout({ children }) {

@@ -103,7 +103,7 @@ export default function DemoController({
         <div className="flex items-center space-x-2">
           <Sparkles className="w-4 h-4 text-[#0284c7] animate-spin" />
           <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-[#2D3436]">
-            SIH LIVE DEMO PRESENTATION AUTOPILOT
+            LIVE DEMO PRESENTATION AUTOPILOT
           </h4>
         </div>
         <span className="telemetry-num text-xs font-bold bg-[#BCE1F4] text-[#2D3436] px-2 py-0.5 rounded">

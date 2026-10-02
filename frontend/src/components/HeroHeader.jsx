@@ -17,10 +17,6 @@ export default function HeroHeader({ station, offlineMode }) {
           </h2>
         </div>
         <p className="text-xs text-[#6B7280] font-medium flex flex-wrap items-center gap-2">
-          <span>SIH 26061</span>
-          <span>•</span>
-          <span>Team AntarctiX</span>
-          <span>•</span>
           <span>Polar Station Energy Management</span>
           <span>•</span>
           <span className="text-[#0284c7] font-semibold flex items-center gap-1">

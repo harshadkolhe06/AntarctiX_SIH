@@ -162,3 +162,24 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
+/* Energy Flow SVG Animations */
+@keyframes flowDash {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.energy-flow-active {
+  stroke-dasharray: 6 4;
+  animation: flowDash 0.8s linear infinite;
+}
+
+.energy-flow-standby {
+  stroke-dasharray: 4 4;
+  opacity: 0.4;
+}
+

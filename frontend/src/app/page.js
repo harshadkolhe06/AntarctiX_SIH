@@ -13,8 +13,9 @@ import BatteryDeratingCard from '../components/BatteryDeratingCard';
 import GeneratorCard from '../components/GeneratorCard';
 import ScenarioPanel from '../components/ScenarioPanel';
 import AlertsPanel from '../components/AlertsPanel';
-import BusinessView from '../components/BusinessView';
-import ArchitectureView from '../components/ArchitectureView';
+import OverviewKpiCards from '../components/OverviewKpiCards';
+import Station2DEnergyFlow from '../components/Station2DEnergyFlow';
+import AiEnergyStatusCard from '../components/AiEnergyStatusCard';
 import DemoController from '../components/DemoController';
 
 export default function Dashboard() {
@@ -133,56 +134,25 @@ export default function Dashboard() {
 
         {currentState && (
           <>
-            {/* OVERVIEW TAB */}
+            {/* OVERVIEW TAB: QUICK SUMMARY / COMMAND CENTER */}
             {activeTab === 'overview' && (
-              <>
-                {/* 6-Card KPI Grid */}
-                <KpiCards state={currentState} kpis={kpis} />
+              <div className="space-y-5">
+                {/* 1. COMPACT 4-KPI CARD SUMMARY */}
+                <OverviewKpiCards state={currentState} />
 
-                {/* Dependency Chain Flow */}
-                <DependencyChainView telemetry={currentState} />
-
-                {/* 3-COLUMN DESKTOP OPERATIONAL GRID (1.2fr 1fr 0.8fr = 40% / 35% / 25%) */}
+                {/* 2. MAIN 2D STATION ENERGY FLOW & AI ENERGY STATUS */}
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-                  {/* LEFT: 40% (5 cols on 12-col grid) */}
-                  <div className="xl:col-span-5 flex flex-col">
-                    <DigitalTwinStationView
-                      station={currentStation}
-                      telemetry={currentState}
-                      onStationChange={handleStationChange}
-                    />
+                  {/* LEFT/CENTER: 2D STATION ENERGY FLOW (8 cols on XL) */}
+                  <div className="xl:col-span-8 flex flex-col">
+                    <Station2DEnergyFlow telemetry={currentState} />
                   </div>
 
-                  {/* CENTER: 35% (4 cols on 12-col grid) */}
+                  {/* RIGHT: AI ENERGY STATUS CARD (4 cols on XL) */}
                   <div className="xl:col-span-4 flex flex-col">
-                    <ForecastChart forecasts={currentState.forecasts} telemetry={currentState} />
-                  </div>
-
-                  {/* RIGHT: 25% (3 cols on 12-col grid) */}
-                  <div className="xl:col-span-3 flex flex-col">
-                    <RiskEnginePanel shortfallRisk={currentState.shortfall_risk} telemetry={currentState} />
+                    <AiEnergyStatusCard telemetry={currentState} />
                   </div>
                 </div>
-
-                {/* SMART ENERGY PRIORITY ALLOCATION (Full Width) */}
-                <EnergyAllocationCard allocation={currentState.allocation} />
-
-                {/* BATTERY DERATING & GENERATOR ANOMALY ENGINES */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  <BatteryDeratingCard batteryDerating={currentState.battery_derating} />
-                  <GeneratorCard generatorHealth={currentState.generator_health} />
-                </div>
-
-                {/* WHAT-IF SIMULATOR (Full Width) */}
-                <ScenarioPanel
-                  activeScenarioId={activeScenarioId}
-                  onSelectScenario={handleScenarioChange}
-                  beforeVsAfter={currentState.before_vs_after}
-                />
-
-                {/* ACTIVE ALERTS (Full Width) */}
-                <AlertsPanel alerts={currentState.alerts} />
-              </>
+              </div>
             )}
 
             {/* TAB VIEWS */}
@@ -215,10 +185,6 @@ export default function Dashboard() {
                 beforeVsAfter={currentState.before_vs_after}
               />
             )}
-
-            {activeTab === 'business' && <BusinessView />}
-
-            {activeTab === 'architecture' && <ArchitectureView />}
           </>
         )}
       </main>
@@ -228,9 +194,6 @@ export default function Dashboard() {
         <div className="max-w-[1600px] mx-auto px-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <strong className="font-heading text-[#2D3436]">PRAKASH</strong> | AI-Driven Polar Energy Intelligence Console (Bharati & Maitri Stations)
-          </div>
-          <div className="font-heading font-semibold text-[#6B7280]">
-            SIH Problem Statement 26061 | Team AntarctiX
           </div>
         </div>
       </footer>

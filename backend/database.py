@@ -9,7 +9,16 @@ import os
 from datetime import datetime
 from typing import Dict, Any, List
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "prakash_offline.db")
+import tempfile
+
+def get_db_path():
+    if os.environ.get("DB_PATH"):
+        return os.environ.get("DB_PATH")
+    if os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        return os.path.join(tempfile.gettempdir(), "prakash_offline.db")
+    return os.path.join(os.path.dirname(__file__), "prakash_offline.db")
+
+DB_PATH = get_db_path()
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
