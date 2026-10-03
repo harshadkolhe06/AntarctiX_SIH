@@ -7,14 +7,22 @@ export default function Station2DEnergyFlow({ telemetry }) {
   if (!telemetry) return null;
 
   const allocation = telemetry.allocation || {};
-  const solarKw = allocation.solar_used_kw || telemetry.current_solar_kw || 0;
-  const windKw = allocation.wind_used_kw || telemetry.current_wind_kw || 0;
-  const batteryKw = allocation.battery_used_kw || 0;
-  const dieselKw = allocation.diesel_used_kw || 0;
+  const solarKw = allocation.solar_used_kw ?? telemetry.current_solar_kw ?? 0;
+  const windKw = allocation.wind_used_kw ?? telemetry.current_wind_kw ?? 0;
+  const batteryKw = allocation.battery_used_kw ?? 0;
+  const dieselKw = allocation.diesel_used_kw ?? 0;
   
   const totalSupply = telemetry.current_total_supply_kw || (solarKw + windKw + batteryKw + dieselKw);
   const totalDemand = telemetry.current_demand_kw || 0;
   const batterySoc = telemetry.battery_derating?.soc_percent ?? 78;
+
+  // Active status booleans for dynamic power flow
+  const isSolarActive = solarKw > 0;
+  const isWindActive = windKw > 0;
+  const isBatteryActive = batteryKw > 0;
+  const isDieselActive = dieselKw > 0;
+
+  const anyActiveSource = isSolarActive || isWindActive || isBatteryActive || isDieselActive;
 
   // Load estimates based on proportions of station load
   const labKw = Math.round(totalDemand * 0.25);
@@ -58,124 +66,132 @@ export default function Station2DEnergyFlow({ telemetry }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {/* ☀ SOLAR */}
             <div className={`p-3 rounded-lg border transition-all text-center flex flex-col items-center justify-center ${
-              solarKw > 0 
-                ? 'bg-amber-50/80 border-[#F59E0B]/50 shadow-sm' 
-                : 'bg-white border-[#E5E7EB] opacity-60'
+              isSolarActive 
+                ? 'bg-emerald-50/90 border-[#10B981]/50 shadow-sm' 
+                : 'bg-red-50/50 border-red-200 opacity-75'
             }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1.5 ${
-                solarKw > 0 ? 'bg-[#F59E0B] text-white shadow-sm' : 'bg-gray-100 text-gray-400'
+                isSolarActive ? 'bg-[#10B981] text-white shadow-sm' : 'bg-red-100 text-[#EF4444]'
               }`}>
                 <Sun className="w-4 h-4" />
               </div>
               <span className="font-heading font-bold text-xs text-[#2D3436]">SOLAR PV</span>
-              <div className="telemetry-num text-sm font-extrabold text-[#F59E0B] mt-0.5">
+              <div className={`telemetry-num text-sm font-extrabold mt-0.5 ${
+                isSolarActive ? 'text-[#10B981]' : 'text-[#EF4444]'
+              }`}>
                 {solarKw} <span className="text-[10px] font-normal text-[#6B7280]">kW</span>
               </div>
               <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded mt-1 ${
-                solarKw > 0 ? 'bg-[#F59E0B]/20 text-[#B45309]' : 'bg-gray-100 text-gray-500'
+                isSolarActive ? 'bg-[#10B981]/20 text-[#047857]' : 'bg-red-100 text-[#EF4444] border border-red-300'
               }`}>
-                {solarKw > 0 ? 'GENERATING' : 'IDLE / NIGHT'}
+                {isSolarActive ? 'GENERATING' : 'IDLE / NIGHT'}
               </span>
             </div>
 
             {/* 🌬 WIND */}
             <div className={`p-3 rounded-lg border transition-all text-center flex flex-col items-center justify-center ${
-              windKw > 0 
-                ? 'bg-sky-50/80 border-[#0284c7]/50 shadow-sm' 
-                : 'bg-white border-[#E5E7EB] opacity-60'
+              isWindActive 
+                ? 'bg-emerald-50/90 border-[#10B981]/50 shadow-sm' 
+                : 'bg-red-50/50 border-red-200 opacity-75'
             }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1.5 ${
-                windKw > 0 ? 'bg-[#0284c7] text-white shadow-sm' : 'bg-gray-100 text-gray-400'
+                isWindActive ? 'bg-[#10B981] text-white shadow-sm' : 'bg-red-100 text-[#EF4444]'
               }`}>
                 <Wind className="w-4 h-4" />
               </div>
               <span className="font-heading font-bold text-xs text-[#2D3436]">WIND TURBINE</span>
-              <div className="telemetry-num text-sm font-extrabold text-[#0284c7] mt-0.5">
+              <div className={`telemetry-num text-sm font-extrabold mt-0.5 ${
+                isWindActive ? 'text-[#10B981]' : 'text-[#EF4444]'
+              }`}>
                 {windKw} <span className="text-[10px] font-normal text-[#6B7280]">kW</span>
               </div>
               <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded mt-1 ${
-                windKw > 0 ? 'bg-[#0284c7]/20 text-[#0369a1]' : 'bg-gray-100 text-gray-500'
+                isWindActive ? 'bg-[#10B981]/20 text-[#047857]' : 'bg-red-100 text-[#EF4444] border border-red-300'
               }`}>
-                {windKw > 0 ? 'GENERATING' : 'NO WIND'}
+                {isWindActive ? 'GENERATING' : 'NO WIND'}
               </span>
             </div>
 
             {/* 🔋 BATTERY */}
             <div className={`p-3 rounded-lg border transition-all text-center flex flex-col items-center justify-center ${
-              batteryKw > 0 
-                ? 'bg-emerald-50/80 border-[#10B981]/50 shadow-sm' 
-                : 'bg-white border-[#E5E7EB]'
+              isBatteryActive 
+                ? 'bg-emerald-50/90 border-[#10B981]/50 shadow-sm' 
+                : 'bg-red-50/50 border-red-200 opacity-75'
             }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1.5 ${
-                batteryKw > 0 ? 'bg-[#10B981] text-white shadow-sm' : 'bg-[#BCE1F4] text-[#075985]'
+                isBatteryActive ? 'bg-[#10B981] text-white shadow-sm' : 'bg-red-100 text-[#EF4444]'
               }`}>
                 <Battery className="w-4 h-4" />
               </div>
               <span className="font-heading font-bold text-xs text-[#2D3436]">BATTERY BANK</span>
-              <div className="telemetry-num text-sm font-extrabold text-[#10B981] mt-0.5">
-                {batteryKw > 0 ? `${batteryKw} kW` : `${batterySoc}% SOC`}
+              <div className={`telemetry-num text-sm font-extrabold mt-0.5 ${
+                isBatteryActive ? 'text-[#10B981]' : 'text-[#EF4444]'
+              }`}>
+                {isBatteryActive ? `${batteryKw} kW` : `${batterySoc}% SOC`}
               </div>
               <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded mt-1 ${
-                batteryKw > 0 ? 'bg-[#10B981]/20 text-[#047857]' : 'bg-[#BCE1F4]/30 text-[#075985]'
+                isBatteryActive ? 'bg-[#10B981]/20 text-[#047857]' : 'bg-red-100 text-[#EF4444] border border-red-300'
               }`}>
-                {batteryKw > 0 ? 'DISCHARGING' : 'RESERVE HOLD'}
+                {isBatteryActive ? 'DISCHARGING' : 'STANDBY'}
               </span>
             </div>
 
             {/* ⚡ DIESEL */}
             <div className={`p-3 rounded-lg border transition-all text-center flex flex-col items-center justify-center ${
-              dieselKw > 0 
-                ? 'bg-red-50/90 border-[#EF4444]/60 shadow-sm' 
-                : 'bg-white border-[#E5E7EB] opacity-75'
+              isDieselActive 
+                ? 'bg-emerald-50/90 border-[#10B981]/50 shadow-sm' 
+                : 'bg-red-50/50 border-red-200 opacity-75'
             }`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1.5 ${
-                dieselKw > 0 ? 'bg-[#EF4444] text-white shadow-sm animate-pulse' : 'bg-gray-100 text-gray-400'
+                isDieselActive ? 'bg-[#10B981] text-white shadow-sm animate-pulse' : 'bg-red-100 text-[#EF4444]'
               }`}>
                 <Flame className="w-4 h-4" />
               </div>
               <span className="font-heading font-bold text-xs text-[#2D3436]">DIESEL BACKUP</span>
-              <div className="telemetry-num text-sm font-extrabold text-[#EF4444] mt-0.5">
-                {dieselKw > 0 ? `${dieselKw} kW` : '0 kW'}
+              <div className={`telemetry-num text-sm font-extrabold mt-0.5 ${
+                isDieselActive ? 'text-[#10B981]' : 'text-[#EF4444]'
+              }`}>
+                {isDieselActive ? `${dieselKw} kW` : '0 kW'}
               </div>
               <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded mt-1 ${
-                dieselKw > 0 ? 'bg-[#EF4444]/20 text-[#b91c1c] animate-pulse' : 'bg-gray-100 text-gray-600'
+                isDieselActive ? 'bg-[#10B981]/20 text-[#047857]' : 'bg-red-100 text-[#EF4444] border border-red-300'
               }`}>
-                {dieselKw > 0 ? 'ACTIVE DISPATCH' : 'STANDBY'}
+                {isDieselActive ? 'ACTIVE DISPATCH' : 'NOT DISPATCHED'}
               </span>
             </div>
           </div>
         </div>
 
-        {/* ================= SVG ANIMATED CONNECTORS (TOP → BUS) ================= */}
-        <div className="relative h-8 flex items-center justify-center">
+        {/* ================= SVG ANIMATED CONNECTORS (TOP SOURCES → NODE) ================= */}
+        <div className="relative h-10 flex items-center justify-center">
           <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 400 30">
             {/* Solar to Bus */}
             <line 
               x1="50" y1="0" x2="200" y2="30" 
-              stroke={solarKw > 0 ? "#F59E0B" : "#CBD5E1"} 
-              strokeWidth={solarKw > 0 ? "2.5" : "1.5"} 
-              className={solarKw > 0 ? "energy-flow-active" : "energy-flow-standby"}
+              stroke={isSolarActive ? "#10B981" : "#EF4444"} 
+              strokeWidth={isSolarActive ? "3" : "2"} 
+              className={isSolarActive ? "energy-flow-active" : "energy-flow-inactive"}
             />
             {/* Wind to Bus */}
             <line 
               x1="150" y1="0" x2="200" y2="30" 
-              stroke={windKw > 0 ? "#0284c7" : "#CBD5E1"} 
-              strokeWidth={windKw > 0 ? "2.5" : "1.5"} 
-              className={windKw > 0 ? "energy-flow-active" : "energy-flow-standby"}
+              stroke={isWindActive ? "#10B981" : "#EF4444"} 
+              strokeWidth={isWindActive ? "3" : "2"} 
+              className={isWindActive ? "energy-flow-active" : "energy-flow-inactive"}
             />
             {/* Battery to Bus */}
             <line 
               x1="250" y1="0" x2="200" y2="30" 
-              stroke={batteryKw > 0 ? "#10B981" : "#CBD5E1"} 
-              strokeWidth={batteryKw > 0 ? "2.5" : "1.5"} 
-              className={batteryKw > 0 ? "energy-flow-active" : "energy-flow-standby"}
+              stroke={isBatteryActive ? "#10B981" : "#EF4444"} 
+              strokeWidth={isBatteryActive ? "3" : "2"} 
+              className={isBatteryActive ? "energy-flow-active" : "energy-flow-inactive"}
             />
             {/* Diesel to Bus */}
             <line 
               x1="350" y1="0" x2="200" y2="30" 
-              stroke={dieselKw > 0 ? "#EF4444" : "#CBD5E1"} 
-              strokeWidth={dieselKw > 0 ? "3" : "1.5"} 
-              className={dieselKw > 0 ? "energy-flow-active" : "energy-flow-standby"}
+              stroke={isDieselActive ? "#10B981" : "#EF4444"} 
+              strokeWidth={isDieselActive ? "3" : "2"} 
+              className={isDieselActive ? "energy-flow-active" : "energy-flow-inactive"}
             />
           </svg>
         </div>
@@ -189,12 +205,14 @@ export default function Station2DEnergyFlow({ telemetry }) {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-heading font-extrabold text-sm tracking-wider uppercase text-white">
-                  MAIN ENERGY BUS
+                  400V 3-PHASE AC DISTRIBUTION NODE
                 </span>
-                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
+                {anyActiveSource && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-ping" />
+                )}
               </div>
               <p className="text-[11px] text-[#AEE4E5]">
-                400V 3-Phase AC Distribution Node (Polar Edge SCADA Controlled)
+                (Polar Edge SCADA Controlled)
               </p>
             </div>
           </div>
@@ -211,19 +229,19 @@ export default function Station2DEnergyFlow({ telemetry }) {
           </div>
         </div>
 
-        {/* ================= SVG ANIMATED CONNECTORS (BUS → LOADS) ================= */}
+        {/* ================= SVG CONNECTORS (NODE → LOADS) ================= */}
         <div className="relative h-8 flex items-center justify-center">
           <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 500 30">
             {/* Bus to Labs */}
-            <line x1="250" y1="0" x2="50" y2="30" stroke="#0284c7" strokeWidth="2" className="energy-flow-active" />
+            <line x1="250" y1="0" x2="50" y2="30" stroke="#0284c7" strokeWidth="2" className={totalSupply > 0 ? "energy-flow-load" : "energy-flow-inactive"} />
             {/* Bus to Living */}
-            <line x1="250" y1="0" x2="150" y2="30" stroke="#0284c7" strokeWidth="2" className="energy-flow-active" />
+            <line x1="250" y1="0" x2="150" y2="30" stroke="#0284c7" strokeWidth="2" className={totalSupply > 0 ? "energy-flow-load" : "energy-flow-inactive"} />
             {/* Bus to HVAC */}
-            <line x1="250" y1="0" x2="250" y2="30" stroke="#0284c7" strokeWidth="2" className="energy-flow-active" />
+            <line x1="250" y1="0" x2="250" y2="30" stroke="#0284c7" strokeWidth="2" className={totalSupply > 0 ? "energy-flow-load" : "energy-flow-inactive"} />
             {/* Bus to Cold Storage */}
-            <line x1="250" y1="0" x2="350" y2="30" stroke="#0284c7" strokeWidth="2" className="energy-flow-active" />
+            <line x1="250" y1="0" x2="350" y2="30" stroke="#0284c7" strokeWidth="2" className={totalSupply > 0 ? "energy-flow-load" : "energy-flow-inactive"} />
             {/* Bus to Essential */}
-            <line x1="250" y1="0" x2="450" y2="30" stroke="#0284c7" strokeWidth="2" className="energy-flow-active" />
+            <line x1="250" y1="0" x2="450" y2="30" stroke="#0284c7" strokeWidth="2" className={totalSupply > 0 ? "energy-flow-load" : "energy-flow-inactive"} />
           </svg>
         </div>
 

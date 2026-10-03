@@ -164,9 +164,9 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 }
 
 /* Energy Flow SVG Animations */
-@keyframes flowDash {
+@keyframes flowDashForward {
   from {
-    stroke-dashoffset: 20;
+    stroke-dashoffset: 24;
   }
   to {
     stroke-dashoffset: 0;
@@ -175,11 +175,27 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 .energy-flow-active {
   stroke-dasharray: 6 4;
-  animation: flowDash 0.8s linear infinite;
+  animation: flowDashForward 1.5s linear infinite;
+  filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.7));
 }
 
-.energy-flow-standby {
+.energy-flow-inactive {
   stroke-dasharray: 4 4;
-  opacity: 0.4;
+  animation: none !important;
+  filter: none !important;
 }
+
+.energy-flow-load {
+  stroke-dasharray: 4 4;
+  animation: flowDashForward 2.5s linear infinite;
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energy-flow-active,
+  .energy-flow-load {
+    animation: none !important;
+  }
+}
+
 
